@@ -50,9 +50,9 @@ def draw_rectangle(image , x1 , y1 , x2 , y2 , thickness , color):
 
 
 ## Function to write text on image
-def write_text(image ,text , x, y , thickness , color):
+def write_text(image ,text , x, y , thickness , color,  font):
 
-    cv2.putText(image, text  , (x , y) , color = color ,fontFace = cv2.FONT_HERSHEY_PLAIN , fontScale = 15 , thickness = thickness , lineType = cv2.LINE_AA)
+    cv2.putText(image, text  , (x , y) , color = color ,fontFace = cv2.FONT_HERSHEY_PLAIN , fontScale = font , thickness = thickness , lineType = cv2.LINE_AA)
     return(image[:,:,::-1])  
 
 
@@ -128,7 +128,8 @@ def main():
                 x = st.number_input("X", value=150)
                 y = st.number_input("Y", value=150)
                 text = st.text_input("Enter text", value="Hello")
-                st.image(write_text(original_image ,text , x, y , thickness , color))
+                font = st.number_input("Enter font size", value = 10)
+                st.image(write_text(original_image ,text , x, y , thickness , color , font))
             
 
 if __name__ == "__main__":
