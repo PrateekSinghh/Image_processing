@@ -1,7 +1,7 @@
 import streamlit as st
 import cv2
 import numpy as np
-
+from PIL import Image
 
 def RGB_image(img):
     return cv2.cvtColor(img , cv2.COLOR_BGR2RGB)
@@ -59,18 +59,25 @@ def write_text(image ,text , x, y , thickness , color,  font):
 
 def main():
 
-    st.markdown("<h2 style='text-align: center; color: cyan; font-size : 70px'>Image Processing with OpenCV</h2>" , unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: cyan; font-size : 50px'>Image Processing with OpenCV</h2>" , unsafe_allow_html=True)
 
-    file = st.file_uploader("Choose an image file" , type = ["jpg" , "png" , "jpeg"])
+    file = st.sidebar.file_uploader("Choose an image file" , type = ["jpg" , "png" , "jpeg"])
     
     if file is not None:
         file_bytes = np.asarray(bytearray(file.read()), dtype=np.uint8)
         original_image = cv2.imdecode(file_bytes, 1)
 
+        scale_percent = 80 # percent of original size
+        width = int(original_image.shape[1] * scale_percent / 100)
+        height = int(original_image.shape[0] * scale_percent / 100)
+        dim = (width, height)   
+        original_image = cv2.resize(original_image , dim, interpolation= cv2.INTER_AREA)
+
         st.subheader("Original Image")
         st.image(RGB_image(original_image), use_column_width=True)
 
-        option = st.selectbox("Select any option", options = ["RGB" , "Grayscale" , "Binary" , "Brightness/Contrast" , "Annotation"])
+        option = 1
+        option = st.sidebar.selectbox("Select any option", options = ["RGB" , "Grayscale" , "Binary" , "Brightness/Contrast" , "Annotation"])
 
         if option == "RGB":
             st.subheader("RGB Image")
@@ -83,22 +90,23 @@ def main():
 
 
         elif option == "Binary":
-            thresh = st.slider("Threshold",min_value = 0  , max_value= 255 , value = 125 , step = 1)
+            thresh = st.sidebar.slider("Threshold",min_value = 0  , max_value= 255 , value = 125 , step = 1)
             st.subheader("Binary Image")
             st.image(threshold_image(original_image , thresh) , use_column_width= True)
 
 
         elif option == "Brightness/Contrast":
-            brightness = st.slider("Brightness", min_value = -100, max_value =  100, value = 0 , step = 2)
-            contrast = st.slider("Contrast",  min_value = -100,max_value =  100, value = 0 , step = 2)
+            brightness = st.sidebar.slider("Brightness", min_value = -100, max_value =  100, value = 0 , step = 2)
+            contrast = st.sidebar.slider("Contrast",  min_value = -100,max_value =  100, value = 0 , step = 2)
             st.subheader("Brightness/Contrast Image")
             st.image(brightness_contrast(original_image, brightness , contrast) , use_column_width= True)
 
 
         elif option == "Annotation":
-            choice = st.selectbox("Choose any of the annotation" , options=["Line" , "Circle" , "Rectangle", "Text"])
-            color = st.color_picker("Select a color" , "#00FFAA")
-            thickness = st.slider("Thickness" , min_value = 1 , max_value = 12 , step = 1)
+            st.subheader("Annotation")
+            choice = st.sidebar.selectbox("Choose shape" , options=["Line" , "Circle" , "Rectangle", "Text"])
+            color = st.sidebar.color_picker("Select any color" , "#00FFAA")
+            thickness = st.sidebar.slider("Thickness" , min_value = 1 , max_value = 12 , step = 1)
 
 
             def hex_to_rgb(hex_color):
@@ -108,10 +116,10 @@ def main():
             color = hex_to_rgb(color)
 
             if choice in ["Line","Rectangle"]:
-                x1 = st.number_input("X1" , value = 10)
-                y1 = st.number_input("Y1" , value = 10)
-                x2 = st.number_input("X2" , value = 50)
-                y2 = st.number_input("Y2" , value = 50)
+                x1 = st.sidebar.number_input("X1" , value = 10)
+                y1 = st.sidebar.number_input("Y1" , value = 10)
+                x2 = st.sidebar.number_input("X2" , value = 50)
+                y2 = st.sidebar.number_input("Y2" , value = 50)
                 if choice == "Line":
                     st.image(draw_line(original_image , x1 , y1 , x2 , y2 , thickness , color) , use_column_width= True)
                 else:
@@ -119,16 +127,16 @@ def main():
                 
 
             if choice in "Circle":
-                x = st.number_input("X1" , value = 50)
-                y = st.number_input("Y1" , value = 50)
-                radius = st.number_input("Radius" ,value = 50)
+                x = st.sidebar.number_input("X1" , value = 50)
+                y = st.sidebar.number_input("Y1" , value = 50)
+                radius = st.sidebar.number_input("Radius" ,value = 50)
                 st.image(draw_circle(original_image , x , y , radius , color , thickness) , use_column_width= True)
 
             if choice in "Text":
-                x = st.number_input("X", value=150)
-                y = st.number_input("Y", value=150)
-                text = st.text_input("Enter text", value="Hello")
-                font = st.number_input("Enter font size", value = 10)
+                x = st.sidebar.number_input("X", value=150)
+                y = st.sidebar.number_input("Y", value=150)
+                text = st.sidebar.text_input("Enter text", value="Hello")
+                font = st.sidebar.number_input("Enter font size", value = 10)
                 st.image(write_text(original_image ,text , x, y , thickness , color , font))
             
 
